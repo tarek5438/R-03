@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار JavaScript: مشروع Tic-Tac-Toe (50 سؤالاً)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --accent: #f59e0b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 28px 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 1.7rem;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #e0f2fe;
+            direction: ltr;
+        }
+
+        .stats-bar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-val.high {
+            color: var(--accent);
+        }
+
+        .btn-index {
+            background: #f0f9ff;
+            color: var(--primary);
+            border: 2px solid #bae6fd;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-index:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        .q-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 10px 20px -3px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .q-badge {
+            background: #f0f9ff;
+            color: var(--primary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .q-text-ar {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.8;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .q-text-en {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #475569;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .opt-btn {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            background: #f0f9ff;
+            border-color: #7dd3fc;
+            transform: translateX(-4px);
+        }
+
+        .opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: var(--success) !important;
+        }
+
+        .opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+        }
+
+        .opt-ar {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .opt-en {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #64748b;
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .opt-btn.correct .opt-ar, .opt-btn.correct .opt-en {
+            color: #15803d !important;
+        }
+
+        .opt-btn.wrong .opt-ar, .opt-btn.wrong .opt-en {
+            color: #991b1b !important;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            line-height: 1.7;
+            display: none;
+            background: #f1f5f9;
+            border-right: 5px solid var(--primary);
+        }
+
+        .exp-en {
+            direction: ltr;
+            text-align: left;
+            font-family: 'Inter', sans-serif;
+            color: #334155;
+            margin-top: 6px;
+            font-size: 0.92rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .btn-nav {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-nav:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 850px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 26px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            animation: popIn 0.25s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+
+        .grid-index {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .index-pill {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            padding: 8px 2px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #334155;
+        }
+
+        .index-pill:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .index-pill.active {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+            font-weight: 900;
+        }
+
+        .index-pill.solved-correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+        }
+
+        .index-pill.solved-wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .trophy { font-size: 4rem; margin-bottom: 15px; }
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #f0f9ff;
+            border: 6px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+
+        .score-num { font-size: 2.4rem; font-weight: 900; color: var(--primary); }
+        .btn-restart {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>اختبار كود Tic-Tac-Toe ومنطق JavaScript (50 سؤالاً)</h1>
+        <p>Bilingual Quiz: DOM Manipulation, Game State & Logic Patterns in JavaScript</p>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">رقم السؤال / Question</span>
+            <div><span class="stat-val" id="qCurrent">1</span> / 50</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">أول محاولة / 1st Score 🎯</span>
+            <span class="stat-val" style="color: #0284c7;" id="firstScore">--</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">الدرجة الحالية / Score</span>
+            <span class="stat-val" id="score">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">أعلى نتيجة / High Score 🏆</span>
+            <span class="stat-val high" id="highScore">0</span>
+        </div>
+        <div>
+            <button class="btn-index" onclick="openIndexModal()">
+                <span>📑</span>
+                <span>فهرس الأسئلة (1-50)</span>
+            </button>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <div class="q-card" id="quizCard">
+        <div class="q-header">
+            <span class="q-badge" id="topicBadge">DOM & Game Logic</span>
+            <span style="color: var(--text-muted); font-size: 0.9rem;" id="qStatusIndicator">لم يُجب بعد / Not answered</span>
+        </div>
+        
+        <div class="q-text-ar" id="questionTextAr">جاري تحميل السؤال...</div>
+        <div class="q-text-en" id="questionTextEn">Loading question...</div>
+        
+        <div class="options-list" id="optionsContainer"></div>
+        <div class="explanation" id="explanationText"></div>
+
+        <div class="actions">
+            <button class="btn-nav" id="prevBtn" onclick="prevQuestion()" disabled>➡️ السابق / Prev</button>
+            <button class="btn-nav" id="nextBtn" onclick="nextQuestion()">التالي / Next ⬅️</button>
+        </div>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <div class="trophy" id="trophyIcon">🎉</div>
+        <h2 id="resultMsg" style="font-size: 1.8rem; margin-bottom: 8px;">أحسنت صنعاً!</h2>
+        <p id="resultSubtitle" style="color: var(--text-muted);">أتممت جميع أسئلة كود Tic-Tac-Toe بنجاح!</p>
+        
+        <div class="score-circle">
+            <div class="score-num" id="finalScore">0</div>
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">/ 50</span>
+        </div>
+
+        <p id="highScoreNotice" style="font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-top: 10px;"></p>
+        <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار من البداية 🔄</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="indexModal" onclick="closeIndexModalOnOutside(event)">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📑 فهرس أسئلة كود Tic-Tac-Toe (1-50)</h3>
+            <button class="close-btn" onclick="closeIndexModal()">✕</button>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background: #22c55e;"></div><span>إجابة صحيحة</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div><span>إجابة خاطئة</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #0284c7;"></div><span>السؤال الحالي</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background: #e2e8f0; border: 1px solid #cbd5e1;"></div><span>لم يُحل بعد</span></div>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">انقر على أي رقم للانتقال إليه مباشرة:</p>
+        <div class="grid-index" id="gridIndexContainer"></div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            topic: "تهيئة المصفوفة / Array Initialization",
+            ar_q: "ما نوع البيانات الناتج عن تنفيذ التعبير Array(9).fill('')؟",
+            en_q: "What data type and structure results from Array(9).fill('')?",
+            options: [
+                { ar: "كائن بيانات يحتوي 9 مفاتيح رقمية", en: "Data object containing 9 numeric keys" },
+                { ar: "مصفوفة تحتوي 9 عناصر بنصوص فارغة", en: "Array containing 9 empty string items" },
+                { ar: "قائمة أرقام متسلسلة تبدأ من الصفر", en: "Sequential number list starting from 0" },
+                { ar: "مجموعة فريدة لا تقبل تكرار العناصر", en: "Unique set structure rejecting duplicates" }
+            ],
+            correct: 1,
+            exp_ar: "ينشئ التعبير Array(9) مصفوفة بطول 9 خانات، ويملؤها التابع fill('') بنصوص فارغة.",
+            exp_en: "Array(9).fill('') creates a 9-element array initialized with empty strings."
+        },
+        {
+            topic: "تحديد العناصر / DOM Selection",
+            ar_q: "ما القيمة التي سيعيدها document.getElementById('board') إذا لم يوجد العنصر في الصفحة؟",
+            en_q: "What does document.getElementById('board') return if the element is not found?",
+            options: [
+                { ar: "قيمة غير معرف بالكامل", en: "Primitive undefined value" },
+                { ar: "مصفوفة فارغة تماماً", en: "Completely empty array" },
+                { ar: "قيمة فارغ الصريحة", en: "Explicit null value" },
+                { ar: "قيمة الصفر الرقمية", en: "Numeric zero value" }
+            ],
+            correct: 2,
+            exp_ar: "تعيد الدالة getElementById القيمة null إذا لم تجد أي عنصر يطابق المعرف المحدد.",
+            exp_en: "getElementById returns null if no element with the specified ID exists in the DOM."
+        },
+        {
+            topic: "تحديث الشاشة / DOM Re-rendering",
+            ar_q: "لماذا يُستخدم السطر board.innerHTML = '' في بداية الدالة createBoard؟",
+            en_q: "Why is board.innerHTML = '' executed at the start of createBoard?",
+            options: [
+                { ar: "لحذف المتغيرات من الذاكرة", en: "To delete variables from memory" },
+                { ar: "لإيقاف استماع أحداث النقر", en: "To stop click event listeners" },
+                { ar: "لحساب عدد الخلايا المتبقية", en: "To count remaining active cells" },
+                { ar: "لتفريغ اللوحة قبل إعادة رسمها", en: "To clear the board before redrawing" }
+            ],
+            correct: 3,
+            exp_ar: "تفريغ الحاوية يمنع تكرار وتراكم الخلايا القديمة مع كل رسم جديد للوحة.",
+            exp_en: "Clearing innerHTML removes existing cell elements to prevent duplicating the board."
+        },
+        {
+            topic: "إنشاء العناصر / Creating Elements",
+            ar_q: "ما الدور الذي تؤديه الدالة document.createElement('div') داخل حلقة forEach؟",
+            en_q: "What role does document.createElement('div') play inside the forEach loop?",
+            options: [
+                { ar: "إنشاء عقدة عنصر HTML جديدة", en: "Creating a new HTML element node" },
+                { ar: "تحديد مكان العنصر داخل الشاشة", en: "Positioning the element on screen" },
+                { ar: "إضافة خصائص التنسيق الخارجي", en: "Applying external style attributes" },
+                { ar: "حفظ نصوص اللاعبين في الذاكرة", en: "Saving player marks inside memory" }
+            ],
+            correct: 0,
+            exp_ar: "تُنشئ الدالة عقدة عنصر div جديد في الذاكرة تمهيداً لإضافته لشجرة الـ DOM.",
+            exp_en: "document.createElement('div') generates a new div DOM element node in memory."
+        },
+        {
+            topic: "إضافة الفئات / Adding CSS Classes",
+            ar_q: "ما وظيفة السطر box.classList.add('cell') في الكود؟",
+            en_q: "What is the function of box.classList.add('cell') in the code?",
+            options: [
+                { ar: "تعيين معرف فريد للخلية المحددة", en: "Setting unique ID on target cell" },
+                { ar: "إضافة فئة لتطبيق التنسيق لاحقاً", en: "Adding class for CSS styling rules" },
+                { ar: "تغيير محتوى النص المكتوب داخلها", en: "Altering inner text content inside" },
+                { ar: "ربط الدالة بمعالج النقر المباشر", en: "Binding function to click handlers" }
+            ],
+            correct: 1,
+            exp_ar: "تضيف classList.add الفئة 'cell' للعنصر ليتم تطبيق التنسيقات البصرية المعرفة بملف CSS.",
+            exp_en: "classList.add('cell') assigns the 'cell' CSS class to apply visual layout rules."
+        },
+        {
+            topic: "معالجات الأحداث / Event Listeners",
+            ar_q: "لماذا تم تمرير دالة سهمية () => start(index) بدلاً من كتابة start(index) مباشرة؟",
+            en_q: "Why pass an arrow function () => start(index) instead of calling start(index) directly?",
+            options: [
+                { ar: "لتأكيد إرسال القيمة كعدد صحيح", en: "To ensure passing an integer value" },
+                { ar: "لتسريع استجابة المتصفح للنقر", en: "To accelerate click reaction speed" },
+                { ar: "لتأجيل التنفيذ حتى حدوث النقر", en: "To defer execution until click happens" },
+                { ar: "لإلغاء الخصائص الافتراضية للزر", en: "To prevent default button behavior" }
+            ],
+            correct: 2,
+            exp_ar: "كتابة start(index) مباشرة تستدعي الدالة فور إنشاء العنصر، بينما الدالة السهمية تؤجلها حتى النقر.",
+            exp_en: "An arrow function defers start(index) execution until the click event actually triggers."
+        },
+        {
+            topic: "إلحاق العناصر / DOM Appending",
+            ar_q: "ما أثر استدعاء board.appendChild(box) في كل دورة؟",
+            en_q: "What is the effect of calling board.appendChild(box) in each iteration?",
+            options: [
+                { ar: "حذف الخلية السابقة من الحاوية", en: "Deleting prior cell from container" },
+                { ar: "إعادة ترتيب عناصر المصفوفة تصاعدياً", en: "Sorting array items ascendingly" },
+                { ar: "إغلاق اللوحة ومنع استقبال المدخلات", en: "Closing board against user input" },
+                { ar: "إدراج الخلية داخل حاوية اللوحة", en: "Inserting cell into board container" }
+            ],
+            correct: 3,
+            exp_ar: "يضيف appendChild العنصر box كعنصر ابن في نهاية عنصر اللوحة board داخل شجرة الـ DOM.",
+            exp_en: "appendChild inserts the generated cell element into the board container in the DOM."
+        },
+        {
+            topic: "التحقق من صحة الحركة / Move Validation",
+            ar_q: "ما الغرض من الشرط gameOver == false && gameBoard[index] == '' في دالة start؟",
+            en_q: "What is the purpose of gameOver == false && gameBoard[index] == '' in start()?",
+            options: [
+                { ar: "منع اللعب عند انتهاء اللعبة أو شغل الخلية", en: "Blocking moves if game ended or cell filled" },
+                { ar: "حساب عدد النقاط المسجلة للاعب الفائز", en: "Tallying score points for the winner" },
+                { ar: "تبديل دور اللاعبين تلقائياً بعد كل ثانية", en: "Toggling player turns automatically per sec" },
+                { ar: "إعادة ضبط اللوحة إلى حالتها الابتدائية", en: "Resetting board back to initial state" }
+            ],
+            correct: 0,
+            exp_ar: "يضمن هذا الشرط عدم استمرار اللعب إذا انتهت الجولة، ويمنع الكتابة فوق خلية تم لعبها مسبقاً.",
+            exp_en: "This guard clause ensures turns only occur when the game is active and the clicked cell is empty."
+        },
+        {
+            topic: "تحديث الحالة / State Mutation",
+            ar_q: "ماذا يفعل السطر gameBoard[index] = turn داخل الدالة start؟",
+            en_q: "What does gameBoard[index] = turn do inside start()?",
+            options: [
+                { ar: "حذف النص المخزن داخل الخلية الحالية", en: "Removing text stored in active cell" },
+                { ar: "تخزين رمز اللاعب الحالي بموقع المصفوفة", en: "Storing active player mark at index" },
+                { ar: "فحص ما إذا كانت الخلية تساوي مسافة", en: "Verifying whether cell matches space" },
+                { ar: "إنشاء مصفوفة جديدة كلياً في الذاكرة", en: "Creating a completely new array instance" }
+            ],
+            correct: 1,
+            exp_ar: "يقوم بتسجيل علامة اللاعب الحالي ('X' أو 'O') في الخانة المقابلة لموقع النقر في مصفوفة اللعبة.",
+            exp_en: "It updates the gameBoard array state by placing the current player's mark at the clicked index."
+        },
+        {
+            topic: "تبديل الأدوار / Turn Toggling",
+            ar_q: "ما هو التعبير المختصر المكافئ لجملة if (turn == 'X') { turn = 'O' } else { turn = 'X' }؟",
+            en_q: "What concise expression is equivalent to the turn toggling if-else block?",
+            options: [
+                { ar: "turn = (turn == 'X');", en: "turn = (turn == 'X');" },
+                { ar: "turn = turn + 'O';", en: "turn = turn + 'O';" },
+                { ar: "turn = turn == 'X' ? 'O' : 'X';", en: "turn = turn == 'X' ? 'O' : 'X';" },
+                { ar: "turn = !turn == 'X';", en: "turn = !turn == 'X';" }
+            ],
+            correct: 2,
+            exp_ar: "استخدام المعامل الشرطي الثلاثي (Ternary Operator) يبدل بين الرمزين 'X' و 'O' بسطر واحد أنيق.",
+            exp_en: "The ternary operator turn = turn == 'X' ? 'O' : 'X' achieves identical toggling logic."
+        },
+        {
+            topic: "تحديث واجهة المستخدم / UI Text Updates",
+            ar_q: "ماذا تعرض العبارة statusText.innerText = 'Player Turn = ' + turn بعد لعب X لأول مرة؟",
+            en_q: "What does statusText.innerText display after player X makes their first move?",
+            options: [
+                { ar: "Player Turn = X", en: "Player Turn = X" },
+                { ar: "Player Turn = null", en: "Player Turn = null" },
+                { ar: "Player Turn = undefined", en: "Player Turn = undefined" },
+                { ar: "Player Turn = O", en: "Player Turn = O" }
+            ],
+            correct: 3,
+            exp_ar: "بما أن الدور يتم تبديله مباشرة بعد اللعب وقبل تحديث نص الحالة، فإن الرسالة ستظهر دور اللاعب التالي O.",
+            exp_en: "Because turn is toggled right before updating statusText, it displays the next player 'O'."
+        },
+        {
+            topic: "أنماط الفوز / Winning Patterns",
+            ar_q: "كم عدد أنماط الفوز المعرفة داخل المصفوفة winPatterns بدالة checkWinning؟",
+            en_q: "How many winning combinations are defined in winPatterns inside checkWinning?",
+            options: [
+                { ar: "8 احتمالات للفوز", en: "8 winning combinations" },
+                { ar: "6 احتمالات للفوز", en: "6 winning combinations" },
+                { ar: "9 احتمالات للفوز", en: "9 winning combinations" },
+                { ar: "3 احتمالات للفوز", en: "3 winning combinations" }
+            ],
+            correct: 0,
+            exp_ar: "تحتوي رقعة 3x3 على 8 خطوط فوز: 3 صفوف أفقية، 3 أعمدة رأسية، وخطان قطريان.",
+            exp_en: "A 3x3 grid contains exactly 8 win lines: 3 rows, 3 columns, and 2 diagonals."
+        },
+        {
+            topic: "تفكيك المصفوفات / Array Destructuring",
+            ar_q: "في السطر let [a, b, c] = x، ماذا تمثل المتغيرات a و b و c؟",
+            en_q: "In let [a, b, c] = x, what do the variables a, b, and c represent?",
+            options: [
+                { ar: "أرقام هواتف اللاعبين المشاركين", en: "Phone contact numbers of users" },
+                { ar: "مؤشرات مواقع الخلايا في المصفوفة", en: "Index positions of board cells" },
+                { ar: "أسماء الفئات المطبقة على الرقعة", en: "Class names added to container" },
+                { ar: "عدد الثواني المستغرقة في الجولة", en: "Elapsed seconds during turn" }
+            ],
+            correct: 1,
+            exp_ar: "تستخرج عملية التفكيك أرقام الفهارس الثلاثة لخط الفوز (مثل 0 و 1 و 2) للمقارنة بينها.",
+            exp_en: "Destructuring extracts the three cell indices forming a specific win pattern."
+        },
+        {
+            topic: "تابع المصفوفات some / The some() Method",
+            ar_q: "ما القيمة التي يعيدها التابع Array.prototype.some() في دالة فحص الفوز؟",
+            en_q: "What type of value does Array.prototype.some() return in checkWinning?",
+            options: [
+                { ar: "رقم الفهرس المطابق للفوز", en: "Index number matching pattern" },
+                { ar: "مصفوفة جديدة تحوي الأنماط", en: "New array containing patterns" },
+                { ar: "قيمة منطقية true أو false", en: "Boolean value true or false" },
+                { ar: "عنصر HTML الخاص بالخلية", en: "Cell DOM element reference" }
+            ],
+            correct: 2,
+            exp_ar: "يعيد التابع some() القيمة true فور تحقق الشرط لعنصر واحد على الأقل، وإلا فإنه يعيد false.",
+            exp_en: "The some() method returns a boolean (true if at least one item satisfies the callback)."
+        },
+        {
+            topic: "التحقق من الفراغ / Non-empty Check",
+            ar_q: "لماذا يحتوي شرط الفوز على التحقق gameBoard[a] != ''؟",
+            en_q: "Why does the win condition include gameBoard[a] != ''?",
+            options: [
+                { ar: "لمنع احتساب 3 خلايا فارغة كفوز", en: "To prevent 3 empty cells as a win" },
+                { ar: "لمنع اللاعب O من اللعب مرتين", en: "To prevent player O moving twice" },
+                { ar: "لإجبار المتصفح على تنظيف اللوحة", en: "To force clearing DOM elements" },
+                { ar: "لحساب عدد الحركات المتبقية", en: "To count remaining move steps" }
+            ],
+            correct: 0,
+            exp_ar: "في بداية اللعبة، تكون جميع الخلايا فارغة ('')، وبدون هذا الشرط سيتطابق الخط الفارغ ويعلن الفوز خطأ.",
+            exp_en: "Without checking != '', three matching empty strings ('') would falsely trigger a win."
+        },
+        {
+            topic: "التشغيل الأولي / Initial Execution",
+            ar_q: "ما فائدة استدعاء createBoard() في السطر الأخير من الملف؟",
+            en_q: "What is the purpose of invoking createBoard() on the final line of code?",
+            options: [
+                { ar: "تصفير نتائج اللاعبين المسجلة", en: "Zeroing out player score records" },
+                { ar: "رسم رقعة اللعبة لأول مرة بالصفحة", en: "Rendering the initial board cells" },
+                { ar: "إنهاء اللعبة وإعلان فوز اللاعب X", en: "Ending game declaring player X win" },
+                { ar: "حذف مستمعات الأحداث من الخلايا", en: "Removing click handlers from DOM" }
+            ],
+            correct: 1,
+            exp_ar: "يقوم هذا الاستدعاء بإنشاء خلايا الرقعة التسع وإضافتها للواجهة فور تحميل وتشغيل الملف.",
+            exp_en: "Invoking createBoard() initializes and draws the 9 grid cells when the page loads."
+        },
+        {
+            topic: "تتبع منطق الكود / Code Logic Tracing",
+            ar_q: "عند النقر على خلية مشغولة بالرمز 'X'، ماذا يحدث لمصفوفة gameBoard؟",
+            en_q: "When clicking a cell already occupied by 'X', what happens to gameBoard?",
+            options: [
+                { ar: "يتم استبدال الرمز X بالرمز O", en: "Symbol X is replaced with mark O" },
+                { ar: "تفرغ الخلية وتصبح نصاً فارغاً", en: "The cell gets reset back to empty" },
+                { ar: "لا تتغير وتبقى المصفوفة كما هي", en: "It remains unchanged as is" },
+                { ar: "يتوقف عمل البرنامج ويحدث خطأ", en: "Script throws a fatal TypeError" }
+            ],
+            correct: 2,
+            exp_ar: "الشرط gameBoard[index] == '' يفشل، فلا يتم تنفيذ أي أمر وتبقى المصفوفة على حالتها دون تغيير.",
+            exp_en: "The condition gameBoard[index] == '' fails, so the code ignores the click without mutating state."
+        },
+        {
+            topic: "إعادة الرسم / Re-rendering Drawbacks",
+            ar_q: "ما العيب البرمجي في استدعاء createBoard() داخل كل حركة في دالة start؟",
+            en_q: "What is the architectural drawback of calling createBoard() on every move in start()?",
+            options: [
+                { ar: "إعادة بناء عناصر DOM ومستمعاتها كاملاً", en: "Rebuilding all DOM nodes and listeners" },
+                { ar: "تغيير ترتيب أنماط الفوز بالمصفوفة", en: "Altering win pattern index order" },
+                { ar: "منع اللاعب O من تسجيل حركاته", en: "Preventing player O from clicking" },
+                { ar: "حذف المتغيرات من النطاق العام", en: "Purging variables from scope" }
+            ],
+            correct: 0,
+            exp_ar: "مسح innerHTML وإعادة إنشاء 9 عناصر وإعادة ربط مستمعات النقر في كل حركة يستهلك موارد المعالجة بلا داعٍ.",
+            exp_en: "Re-creating all 9 DOM elements and re-attaching event listeners on every click is inefficient."
+        },
+        {
+            topic: "نطاق المتغيرات / Variable Scoping",
+            ar_q: "المتغير turn المعرف بـ let في أعلى الكود يتبع أي نطاق؟",
+            en_q: "The variable 'turn' defined with 'let' at the top belongs to which scope?",
+            options: [
+                { ar: "نطاق دالة checkWinning فقط", en: "checkWinning function scope only" },
+                { ar: "نطاق الكتلة داخل حلقة forEach", en: "Block scope inside forEach loop" },
+                { ar: "نطاق الدالة start وحدها", en: "start function local scope" },
+                { ar: "النطاق العام لملف الجافاسكريبت", en: "Global scope of script file" }
+            ],
+            correct: 3,
+            exp_ar: "المتغيرات المعرفة خارج الدوال في قمة الملف تقع في النطاق العام للملف (Script/Global Scope).",
+            exp_en: "Variables declared outside functions at top-level reside in the script's global scope."
+        },
+        {
+            topic: "فحص الأقطار / Diagonal Patterns",
+            ar_q: "أي من المصفوفات التالية يمثل أحد الأنماط القطرية للفوز داخل winPatterns؟",
+            en_q: "Which sub-array represents a diagonal winning pattern in winPatterns?",
+            options: [
+                { ar: "النمط [0, 4, 8]", en: "The pattern [0, 4, 8]" },
+                { ar: "النمط [0, 1, 2]", en: "The pattern [0, 1, 2]" },
+                { ar: "النمط [3, 4, 5]", en: "The pattern [3, 4, 5]" },
+                { ar: "النمط [1, 4, 7]", en: "The pattern [1, 4, 7]" }
+            ],
+            correct: 0,
+            exp_ar: "يمثل النمط [0, 4, 8] القطر الممتد من أعلى اليسار إلى أسفل اليمين، والنمط [2, 4, 6] القطر المعاكس.",
+            exp_en: "[0, 4, 8] represents the diagonal line spanning from top-left to bottom-right."
+        },
+        {
+            topic: "إنهاء اللعبة / Game Over State",
+            ar_q: "إذا أردنا إنهاء اللعبة عند تحقق الفوز، ما المتغير الذي يجب تعديله إلى true؟",
+            en_q: "To prevent further moves after a win, which variable should be set to true?",
+            options: [
+                { ar: "المتغير gameBoard", en: "The variable gameBoard" },
+                { ar: "المتغير gameOver", en: "The variable gameOver" },
+                { ar: "المتغير turn", en: "The variable turn" },
+                { ar: "المتغير resetBtn", en: "The variable resetBtn" }
+            ],
+            correct: 1,
+            exp_ar: "تعيين gameOver = true يوقف استقبال أي نقرات إضافية بفضل الشرط gameOver == false في دالة start.",
+            exp_en: "Setting gameOver = true locks the board because start() requires gameOver == false."
+        },
+        {
+            topic: "خصائص النصوص / Text Properties",
+            ar_q: "ما البديل القياسي لخاصية box.innerText لعرض علامة اللاعب داخل الخلية؟",
+            en_q: "What is a standard alternative to box.innerText for displaying the player's mark?",
+            options: [
+                { ar: "خاصية box.className", en: "Property box.className" },
+                { ar: "خاصية box.value", en: "Property box.value" },
+                { ar: "خاصية box.textContent", en: "Property box.textContent" },
+                { ar: "خاصية box.href", en: "Property box.href" }
+            ],
+            correct: 2,
+            exp_ar: "تُعد textContent الخاصية القياسية والأسرع لتعيين وقراءة النصوص المباشرة داخل عناصر الـ DOM.",
+            exp_en: "textContent is a standard, performant alternative to innerText for setting node text."
+        },
+        {
+            topic: "طول المصفوفة / Array Length",
+            ar_q: "كم عدد عناصر مصفوفة اللعبة gameBoard.length في أي وقت؟",
+            en_q: "What is the value of gameBoard.length at any point in the game?",
+            options: [
+                { ar: "يتغير بتغير عدد النقرات", en: "Changes with number of moves" },
+                { ar: "يقل تدريجياً حتى الصفر", en: "Decreases down to zero" },
+                { ar: "يزداد بمقدار واحد كل دور", en: "Increments by 1 every turn" },
+                { ar: "ثابت دائماً عند 9 خانات", en: "Always fixed at 9 items" }
+            ],
+            correct: 3,
+            exp_ar: "تم إنشاء المصفوفة بطول 9 ثابت، وتعديل قيم عناصرها لا يغير من طول المصفوفة الأساسي.",
+            exp_en: "The array length remains constant at 9; updating elements mutates values, not size."
+        },
+        {
+            topic: "أنماط الأعمدة / Column Patterns",
+            ar_q: "أي نمط من الأنماط التالية يمثل فوزاً في العمود الأوسط عمودياً؟",
+            en_q: "Which pattern represents a vertical win down the center column?",
+            options: [
+                { ar: "النمط [1, 4, 7]", en: "The pattern [1, 4, 7]" },
+                { ar: "النمط [0, 3, 6]", en: "The pattern [0, 3, 6]" },
+                { ar: "النمط [2, 5, 8]", en: "The pattern [2, 5, 8]" },
+                { ar: "النمط [3, 4, 5]", en: "The pattern [3, 4, 5]" }
+            ],
+            correct: 0,
+            exp_ar: "الخلايا 1 (أعلى الوسط)، 4 (المركز)، و 7 (أسفل الوسط) تشكل العمود الرأسي الأوسط للرقعة.",
+            exp_en: "Indices 1, 4, and 7 constitute the vertical center column of the 3x3 board."
+        },
+        {
+            topic: "فحص التعادل / Tie Checking",
+            ar_q: "كيف يمكن فحص حالة التعادل (Draw) عند امتلاء الرقعة دون فوز أي لاعب؟",
+            en_q: "How can a draw/tie condition be evaluated when the board fills with no winner?",
+            options: [
+                { ar: "gameBoard.some(c => c == '')", en: "gameBoard.some(c => c == '')" },
+                { ar: "gameBoard.every(c => c != '')", en: "gameBoard.every(c => c != '')" },
+                { ar: "gameBoard.length == 0", en: "gameBoard.length == 0" },
+                { ar: "gameBoard.includes('Draw')", en: "gameBoard.includes('Draw')" }
+            ],
+            correct: 1,
+            exp_ar: "يعيد التابع every(c => c != '') القيمة true عندما تصبح جميع الخلايا غير فارغة وممتلئة.",
+            exp_en: "gameBoard.every(c => c != '') returns true when all 9 cells are occupied with no empty slots."
+        },
+        {
+            topic: "زر إعادة التشغيل / Reset Button",
+            ar_q: "لإعادة ضبط اللعبة بواسطة resetBtn، ما الأوامر الواجب تنفيذها؟",
+            en_q: "To reset the game using resetBtn, what commands should be executed?",
+            options: [
+                { ar: "board.remove() وحذف المتصفح", en: "board.remove() and browser close" },
+                { ar: "gameBoard.pop() لتفريغ الذاكرة", en: "gameBoard.pop() to purge memory" },
+                { ar: "تصفير gameBoard واستدعاء createBoard", en: "Reset gameBoard and invoke createBoard" },
+                { ar: "تحويل turn إلى قيمة رقمية 0", en: "Converting turn to numeric zero" }
+            ],
+            correct: 2,
+            exp_ar: "تتطلب إعادة التشغيل ملء المصفوفة بنصوص فارغة، إعادة الدور إلى 'X'، واستدعاء createBoard() لإعادة الرسم.",
+            exp_en: "Resetting requires re-filling gameBoard with '', resetting flags, and calling createBoard()."
+        },
+        {
+            topic: "تكرار الشفرة / Event Delegation",
+            ar_q: "ما التقنية المتقدمة التي تغني عن إضافة 9 مستمعات أحداث منفصلة للخلايا؟",
+            en_q: "What advanced technique eliminates adding 9 individual listeners to cells?",
+            options: [
+                { ar: "استخدام الصمامات المفرغة للحوسبة", en: "Using vacuum tubes for processing" },
+                { ar: "الاعتماد على الحوسبة السحابية", en: "Relying on cloud server APIs" },
+                { ar: "إلغاء استخدام لغة جافاسكريبت", en: "Removing JavaScript completely" },
+                { ar: "تفويض الأحداث على عنصر اللوحة", en: "Event delegation on board element" }
+            ],
+            correct: 3,
+            exp_ar: "تفويض الأحداث (Event Delegation) يتيح ربط مستمع واحد على العنصر الأب board والاستفادة من خاصية الفقاعة (Bubbling).",
+            exp_en: "Event delegation attaches a single click listener to the parent container leveraging bubbling."
+        },
+        {
+            topic: "النوع والحالة / Strict Equality",
+            ar_q: "ما الفرق الأساسي بين استخدام == و === في شرط gameOver == false؟",
+            en_q: "What is the key difference between == and === in gameOver == false?",
+            options: [
+                { ar: "المعامل === يتحقق من القيمة ونوع البيانات", en: "Operator === checks value and data type" },
+                { ar: "المعامل == يعمل فقط مع المصفوفات الرقمية", en: "Operator == works only on numeric arrays" },
+                { ar: "المعامل === يحذف المتغيرات من الذاكرة", en: "Operator === purges variables from memory" },
+                { ar: "لا يوجد أي فرق بينهما في لغة JavaScript", en: "There is no difference in JavaScript" }
+            ],
+            correct: 0,
+            exp_ar: "المطابقة الصارمة === تفحص القيمة ونوع البيانات معاً دون تحويل ضمني للأنواع (Type Coercion).",
+            exp_en: "Strict equality (===) compares both value and type without performing implicit coercion."
+        },
+        {
+            topic: "فهارس الصف الأخير / Bottom Row Indices",
+            ar_q: "أي من الأنماط الآتية يمثل فوز الصف الأفقي الأخير في أسفل الرقعة؟",
+            en_q: "Which pattern represents a win across the bottom-most horizontal row?",
+            options: [
+                { ar: "النمط [0, 1, 2]", en: "The pattern [0, 1, 2]" },
+                { ar: "النمط [6, 7, 8]", en: "The pattern [6, 7, 8]" },
+                { ar: "النمط [2, 5, 8]", en: "The pattern [2, 5, 8]" },
+                { ar: "النمط [3, 4, 5]", en: "The pattern [3, 4, 5]" }
+            ],
+            correct: 1,
+            exp_ar: "تتطابق الفهارس 6 و 7 و 8 مع خلايا الصف السفلي الأفقي في شبكة 3x3.",
+            exp_en: "Indices 6, 7, and 8 correspond to the bottom horizontal row on a 3x3 board."
+        },
+        {
+            topic: "استدعاء دالة الفحص / Invoking Win Check",
+            ar_q: "أين يجب استدعاء الدالة checkWinning() للتأكد من فوز اللاعب بعد حركته؟",
+            en_q: "Where should checkWinning() be invoked to verify a player win after a move?",
+            options: [
+                { ar: "في بداية ملف الكود قبل المتغيرات", en: "At the top of code before variables" },
+                { ar: "خارج ملف الجافاسكريبت بالكامل", en: "Completely outside the script file" },
+                { ar: "داخل الدالة start بعد تحديث المصفوفة", en: "Inside start() after updating the board" },
+                { ar: "داخل ملف تنسيق CSS الرئيسي", en: "Inside the primary CSS stylesheet" }
+            ],
+            correct: 2,
+            exp_ar: "يجب استدعاء فحص الفوز بعد وضع الرمز مباشرة في المصفوفة للتأكد مما إذا كانت الحركة حاسمة للجولة.",
+            exp_en: "checkWinning() must run inside start() right after updating gameBoard to verify if the move won."
+        },
+        {
+            topic: "المؤشرات والأعداد / Zero-based Indexing",
+            ar_q: "في مصفوفة من 9 عناصر، ما هو رقم فهرس الخلية التي تقع في منتصف الرقعة تماماً؟",
+            en_q: "In a 9-element array, what is the index of the cell located at the exact center?",
+            options: [
+                { ar: "الخلية ذات الفهرس 5", en: "The cell at index 5" },
+                { ar: "الخلية ذات الفهرس 0", en: "The cell at index 0" },
+                { ar: "الخلية ذات الفهرس 8", en: "The cell at index 8" },
+                { ar: "الخلية ذات الفهرس 4", en: "The cell at index 4" }
+            ],
+            correct: 3,
+            exp_ar: "نظراً لأن الفهرسة تبدأ من الصفر (0 إلى 8)، فإن العنصر الخامس في المنتصف يحمل الفهرس رقم 4.",
+            exp_en: "Because indexing is zero-based (0 to 8), the center cell occupies index position 4."
+        },
+        {
+            topic: "خاصية التكرار / forEach Callback Arguments",
+            ar_q: "في السطر gameBoard.forEach((text, index) => ...)، ماذا تمثل المعلمة text؟",
+            en_q: "In gameBoard.forEach((text, index) => ...), what does the 'text' parameter represent?",
+            options: [
+                { ar: "قيمة العنصر الحالي بالمصفوفة", en: "Value of current array element" },
+                { ar: "رقم الفهرس الخاص بالعنصر", en: "Numeric index of element" },
+                { ar: "طول المصفوفة الكلي للعبة", en: "Total length of the array" },
+                { ar: "عنصر الرقعة المأخوذ بالـ DOM", en: "DOM board container element" }
+            ],
+            correct: 0,
+            exp_ar: "تستقبل المعلمة الأولى في دالة forEach قيمة العنصر الحالي (النص '' أو 'X' أو 'O').",
+            exp_en: "The first argument in forEach callback receives the value of the current element being processed."
+        },
+        {
+            topic: "التعامل مع النصوص الفارغة / Empty String Falsiness",
+            ar_q: "في لغة JavaScript، هل النص الفارغ '' يُعامل كقيمة حقيقية أم غير حقيقية؟",
+            en_q: "In JavaScript, does an empty string '' evaluate to a truthy or falsy value?",
+            options: [
+                { ar: "يُعامل كقيمة غير حقيقية دائماً", en: "Always evaluates as falsy" },
+                { ar: "يُعامل كقيمة حقيقية دائماً", en: "Always evaluates as truthy" },
+                { ar: "يعتمد على نوع المتصفح المشغل", en: "Depends on browser engine" },
+                { ar: "يتحول تلقائياً إلى مصفوفة", en: "Converts automatically to array" }
+            ],
+            correct: 0,
+            exp_ar: "النص الفارغ '' يُعد من القيم الزائفة (Falsy values) في JavaScript عند تحويله إلى Boolean.",
+            exp_en: "An empty string '' is inherently falsy when cast into a boolean context in JavaScript."
+        },
+        {
+            topic: "سلوك النقر المزدوج / Preventing Double Clicks",
+            ar_q: "إذا نقر اللاعب مرتين بسرعة على نفس الخلية، ما الذي يمنع تبديل الدور مرتين؟",
+            en_q: "If a player double-clicks the same cell rapidly, what prevents toggling the turn twice?",
+            options: [
+                { ar: "إيقاف استجابة الفأرة بالمتصفح", en: "Disabling mouse responses in browser" },
+                { ar: "فحص gameBoard[index] == ''", en: "The gameBoard[index] == '' check" },
+                { ar: "إعادة بناء الحاسوب بالكامل", en: "Rebuilding computer architecture" },
+                { ar: "تشفير الاتصال ببروتوكول TLS", en: "Encrypting with TLS protocol" }
+            ],
+            correct: 1,
+            exp_ar: "في المرة الأولى تصبح الخلية 'X'، وعند حدوث النقرة الثانية يفشل الشرط فلا يتغير الرمز ولا يتبدل الدور.",
+            exp_en: "The first click sets the cell, causing gameBoard[index] == '' to evaluate to false on the second click."
+        },
+        {
+            topic: "أول خط أفقي / First Row Pattern",
+            ar_q: "أي من الأنماط الآتية يمثل الصف الأفقي الأول في قمة الرقعة؟",
+            en_q: "Which pattern represents the first horizontal row at the top of the grid?",
+            options: [
+                { ar: "النمط [3, 4, 5]", en: "The pattern [3, 4, 5]" },
+                { ar: "النمط [6, 7, 8]", en: "The pattern [6, 7, 8]" },
+                { ar: "النمط [0, 1, 2]", en: "The pattern [0, 1, 2]" },
+                { ar: "النمط [0, 3, 6]", en: "The pattern [0, 3, 6]" }
+            ],
+            correct: 2,
+            exp_ar: "الخلايا 0 و 1 و 2 تمثل خانات الصف العلوي الأول في لوحة اللعبة.",
+            exp_en: "Indices 0, 1, and 2 correspond to the top-most row on the game board."
+        },
+        {
+            topic: "العمود الأول / First Column Pattern",
+            ar_q: "أي من الأنماط التالية يمثل خط الفوز في العمود الرأسي الأول على اليسار؟",
+            en_q: "Which pattern represents the vertical line down the first left-hand column?",
+            options: [
+                { ar: "النمط [1, 4, 7]", en: "The pattern [1, 4, 7]" },
+                { ar: "النمط [2, 5, 8]", en: "The pattern [2, 5, 8]" },
+                { ar: "النمط [0, 4, 8]", en: "The pattern [0, 4, 8]" },
+                { ar: "النمط [0, 3, 6]", en: "The pattern [0, 3, 6]" }
+            ],
+            correct: 3,
+            exp_ar: "الخلايا 0 (أعلى اليسار)، 3 (وسط اليسار)، و 6 (أسفل اليسار) تشكل العمود الرأسي الأول.",
+            exp_en: "Indices 0, 3, and 6 comprise the first vertical column on the 3x3 board."
+        },
+        {
+            topic: "إسناد المتغيرات / Const vs Let",
+            ar_q: "لماذا تم تعريف المتغير turn بـ let بدلاً من const في قمة الكود؟",
+            en_q: "Why was 'turn' declared using 'let' instead of 'const' at the top of the code?",
+            options: [
+                { ar: "لأن قيمته تتغير بين X و O باستمرار", en: "Because its value toggles between X and O" },
+                { ar: "لأن const لا تدعم النصوص مطلقاً", en: "Because const cannot store string values" },
+                { ar: "لتسريع عمليات البحث في الذاكرة", en: "To accelerate lookup speed in memory" },
+                { ar: "لإتاحة حذفه تلقائياً من المتصفح", en: "To allow automatic browser garbage collection" }
+            ],
+            correct: 0,
+            exp_ar: "المتغير المعرف بـ const ثابت ولا يقبل إعادة الإسناد، بينما turn يعاد تعيينه في كل دور لذا يجب استخدام let.",
+            exp_en: "Variables declared with const cannot be reassigned; turn must alternate between 'X' and 'O'."
+        },
+        {
+            topic: "إسناد الكائنات / Const Mutability",
+            ar_q: "المتغير board معرف بـ const، فلماذا سُمح بتعديل خاصيته board.innerHTML = ''؟",
+            en_q: "The variable 'board' is declared with const; why can its innerHTML property be modified?",
+            options: [
+                { ar: "لأن المتصفح يتجاهل قيود const دائماً", en: "Because browsers ignore const restrictions" },
+                { ar: "لأن const تمنع إعادة إسناد المرجع لا تعديل خصائصه", en: "Because const forbids reassignment, not property mutation" },
+                { ar: "لأن innerHTML دالة وليست خاصية نصية", en: "Because innerHTML is a method, not property" },
+                { ar: "لأن الكود يعمل داخل بيئة غير متزامنة", en: "Because the script runs in async mode" }
+            ],
+            correct: 1,
+            exp_ar: "تمنع const إعادة إسناد متغير جديد للمرجع، لكنها تسمح بتعديل الخصائص الداخلية للكائن نفسه.",
+            exp_en: "const prevents reassigning the identifier, but allows mutating the referenced DOM object's properties."
+        },
+        {
+            topic: "العمود الثالث / Right Column Pattern",
+            ar_q: "أي نمط من الأنماط التالية يمثل خط الفوز للعمود الرأسي الثالث على اليمين؟",
+            en_q: "Which pattern represents the vertical line down the third right-hand column?",
+            options: [
+                { ar: "النمط [0, 3, 6]", en: "The pattern [0, 3, 6]" },
+                { ar: "النمط [1, 4, 7]", en: "The pattern [1, 4, 7]" },
+                { ar: "النمط [2, 5, 8]", en: "The pattern [2, 5, 8]" },
+                { ar: "النمط [2, 4, 6]", en: "The pattern [2, 4, 6]" }
+            ],
+            correct: 2,
+            exp_ar: "الخلايا ذات الفهارس 2 و 5 و 8 تشكل العمود الرأسي الأيمن في شبكة 3x3.",
+            exp_en: "Indices 2, 5, and 8 represent the third vertical column on the 3x3 grid."
+        },
+        {
+            topic: "الصف الأوسط / Middle Row Pattern",
+            ar_q: "أي نمط من الأنماط الآتية يمثل خط الفوز للصف الأفقي الأوسط؟",
+            en_q: "Which pattern represents the middle horizontal row win line?",
+            options: [
+                { ar: "النمط [0, 1, 2]", en: "The pattern [0, 1, 2]" },
+                { ar: "النمط [6, 7, 8]", en: "The pattern [6, 7, 8]" },
+                { ar: "النمط [1, 4, 7]", en: "The pattern [1, 4, 7]" },
+                { ar: "النمط [3, 4, 5]", en: "The pattern [3, 4, 5]" }
+            ],
+            correct: 3,
+            exp_ar: "الفهارس 3 و 4 و 5 تتطابق مع خانات الصف الأفقي الأوسط للرقعة.",
+            exp_en: "Indices 3, 4, and 5 form the horizontal middle row on the board."
+        },
+        {
+            topic: "القطر العكسي / Anti-diagonal Pattern",
+            ar_q: "النمط القتري الممتد من أعلى اليمين إلى أسفل اليسار يمثله الفهرس:",
+            en_q: "The diagonal line from top-right to bottom-left is represented by indices:",
+            options: [
+                { ar: "النمط [2, 4, 6]", en: "The pattern [2, 4, 6]" },
+                { ar: "النمط [0, 4, 8]", en: "The pattern [0, 4, 8]" },
+                { ar: "النمط [0, 1, 2]", en: "The pattern [0, 1, 2]" },
+                { ar: "النمط [6, 7, 8]", en: "The pattern [6, 7, 8]" }
+            ],
+            correct: 0,
+            exp_ar: "الخلايا 2 (أعلى اليمين)، 4 (المنتصف)، و 6 (أسفل اليسار) تشكل القطر العكسي في الشبكة.",
+            exp_en: "Indices 2, 4, and 6 comprise the anti-diagonal crossing from top-right to bottom-left."
+        },
+        {
+            topic: "التحقق من الشرط الثلاثي / Triple Equality Logic",
+            ar_q: "لماذا تضمنت المقارنة gameBoard[a] == gameBoard[b] && gameBoard[b] == gameBoard[c] بدلاً من a == b == c؟",
+            en_q: "Why use gameBoard[a] == gameBoard[b] && gameBoard[b] == gameBoard[c] instead of a == b == c?",
+            options: [
+                { ar: "لأن a == b تعيد قيمة منطقية لا تقارن مع c", en: "Because a == b returns boolean, breaking chained check" },
+                { ar: "لأن لغة جافاسكريبت تمنع المقارنة بين النصوص", en: "Because JavaScript disallows string equality" },
+                { ar: "لأن المصفوفات تفقد عناصرها عند المقارنة", en: "Because arrays drop elements upon evaluation" },
+                { ar: "لأن المعامل && يسرع حساب العمليات الحسابية", en: "Because && operator speeds up mathematical calculations" }
+            ],
+            correct: 0,
+            exp_ar: "في JS، التعبير x == y == z يقارن ناتج المقارنة الأولى (true/false) مع المتغير الثالث، وهو خطأ منطقي شهير.",
+            exp_en: "Chained comparisons (x == y == z) evaluate to a boolean against the third value, causing logic errors."
+        },
+        {
+            topic: "حجم المصفوفة الابتدائية / Initial Allocation",
+            ar_q: "ماذا سيحدث للعبة لو تم استبدال السطر Array(9) بـ Array(16)؟",
+            en_q: "What would happen if Array(9) was replaced with Array(16)?",
+            options: [
+                { ar: "ستتوقف اللعبة ولن تُنشأ أي خلية", en: "The game halts and generates zero cells" },
+                { ar: "ستُنشأ رقعة تحتوي على 16 خلية", en: "A grid with 16 cells will be rendered" },
+                { ar: "ستلغى جميع أنماط الفوز تلقائياً", en: "All win patterns are deleted automatically" },
+                { ar: "ستتحول اللعبة إلى نمط ثلاثي الأبعاد", en: "The game transitions to 3D rendering mode" }
+            ],
+            correct: 1,
+            exp_ar: "حلقة forEach ستكرر الكود 16 مرة، مما ينشئ 16 خلية في واجهة المستخدم بدلاً من 9.",
+            exp_en: "The forEach loop will iterate 16 times, drawing 16 grid cells on screen instead of 9."
+        },
+        {
+            topic: "نطاق الدوال الإغلاقية / Closures in Listeners",
+            ar_q: "كيف تحتفظ الدالة () => start(index) بقيمة index الصحيحة لكل خلية؟",
+            en_q: "How does the arrow function () => start(index) retain the correct index per cell?",
+            options: [
+                { ar: "بفضل خاصية الإغلاق (Closure) في لغة JS", en: "Through JavaScript lexical closure scope" },
+                { ar: "بتخزينها في ملفات تعريف الارتباط", en: "By caching values inside browser cookies" },
+                { ar: "بإعادة تحميل الصفحة عند كل نقرة", en: "By reloading document tree on clicks" },
+                { ar: "بتحويل الفهرس إلى قيمة عامة ثابتة", en: "By converting the index to a global constant" }
+            ],
+            correct: 0,
+            exp_ar: "تحتفظ الدالة السهمية بالمتغير index من النطاق المعجمي المحيط بها بفضل ميزة الـ Closure.",
+            exp_en: "Lexical scoping creates a closure around the index parameter for each iteration."
+        },
+        {
+            topic: "المؤشرات السالبة / Negative Indexing",
+            ar_q: "ما هي القيمة الناتجة إذا حاول الكود قراءة gameBoard[-1]؟",
+            en_q: "What is the result if the code attempts to read gameBoard[-1]?",
+            options: [
+                { ar: "يعيد العنصر الأخير في المصفوفة", en: "Returns the last item in array" },
+                { ar: "يعيد قيمة الخطأ TypeError", en: "Throws runtime TypeError" },
+                { ar: "يعيد القيمة غير المعرفة undefined", en: "Returns the primitive undefined" },
+                { ar: "يعيد نصاً فارغاً كقيمة افتراضية", en: "Returns empty string by default" }
+            ],
+            correct: 2,
+            exp_ar: "في مصفوفات JavaScript التقليدية، الفهارس غير المعرفة (بما فيها السالبة) تعيد undefined ولا تطلق خطأ.",
+            exp_en: "In standard JavaScript arrays, accessing unassigned or negative indices yields undefined."
+        },
+        {
+            topic: "تحويل الأنماط / Pattern Array Type",
+            ar_q: "المصفوفة winPatterns المعرفة داخل checkWinning تصنف على أنها:",
+            en_q: "The winPatterns structure inside checkWinning is classified as a:",
+            options: [
+                { ar: "مصفوفة أحادية الأبعاد", en: "Single-dimensional array" },
+                { ar: "مصفوفة كائنات رقمية", en: "Numerical object array" },
+                { ar: "مصفوفة ثنائية الأبعاد", en: "Two-dimensional array" },
+                { ar: "مجموعة فريدة من البيانات", en: "Unique data set object" }
+            ],
+            correct: 2,
+            exp_ar: "تتكون winPatterns من مصفوفة رئيسية تحتوي بداخلها على مصفوفات فرعية، وهي بنية ثنائية الأبعاد (2D Array).",
+            exp_en: "winPatterns contains nested arrays within a parent array, making it a 2D array."
+        },
+        {
+            topic: "تعريف المتغيرات / Hoisting in Functions",
+            ar_q: "الدوال المعرفة بـ function مثل createBoard يمكن استدعاؤها قبل كتابتها في الكود بفضل:",
+            en_q: "Functions declared with 'function' can be called before declaration due to:",
+            options: [
+                { ar: "خاصية الرفع (Hoisting)", en: "JavaScript declaration hoisting" },
+                { ar: "تشفير الملف بالكامل", en: "Full-file cryptographic hashing" },
+                { ar: "تقنيات التخزين المؤقت", en: "Browser memory caching layers" },
+                { ar: "البرمجة كائنية التوجه", en: "Object-oriented paradigm" }
+            ],
+            correct: 0,
+            exp_ar: "يتم رفع الإعلانات الدالية (Function Declarations) إلى قمة نطاقها أثناء مرحلة التفسير، مما يسمح باستدعائها مسبقاً.",
+            exp_en: "Function declarations are hoisted to the top of their scope during compilation."
+        },
+        {
+            topic: "استهلاك الموارد / Event Garbage Collection",
+            ar_q: "عند استبدال board.innerHTML = ''، ماذا يحدث لمستمعات الأحداث على العناصر السابقة؟",
+            en_q: "When replacing board.innerHTML = '', what happens to old element event listeners?",
+            options: [
+                { ar: "تظل نشطة في الذاكرة للأبد", en: "Remain permanently active in memory" },
+                { ar: "تُزال وتجمعها الذاكرة تلقائياً", en: "Get detached and garbage collected" },
+                { ar: "تنتقل تلقائياً إلى الزر resetBtn", en: "Automatically transfer to resetBtn" },
+                { ar: "تتحول إلى دوال غير متزامنة", en: "Convert into async functions" }
+            ],
+            correct: 1,
+            exp_ar: "عند إزالة عناصر الـ DOM من الشجرة وانقطاع مراجعها، يتم تنظيفها ومستمعاتها بواسطة جامع المهملات (Garbage Collector).",
+            exp_en: "Removing elements from the DOM drops their references, allowing garbage collection to reclaim them."
+        },
+        {
+            topic: "حالة الفوز / Winning Condition Trigger",
+            ar_q: "ما التعديل المطلوب لطباعة اسم الفائز داخل statusText فور انتصاره؟",
+            en_q: "What modification is required to display the winner in statusText upon winning?",
+            options: [
+                { ar: "حذف محتوى مصفوفة gameBoard بالكامل", en: "Clearing the entire gameBoard array" },
+                { ar: "فحص checkWinning وتحديث statusText إذا كانت النتيجة true", en: "Checking checkWinning and updating statusText if true" },
+                { ar: "تغيير قيمة turn إلى نص فارغ فوراً", en: "Resetting turn variable to empty string" },
+                { ar: "استدعاء دالة alert(calculator) السابقة", en: "Calling the previous calculator alert" }
+            ],
+            correct: 1,
+            exp_ar: "يجب وضع جملة شرطية if (checkWinning()) تقوم بضبط gameOver = true وتغيير نص الحالة لتهنئة الفائز.",
+            exp_en: "Invoking if (checkWinning()) allows setting gameOver = true and announcing the victor in statusText."
+        },
+        {
+            topic: "التبديل بعد الفوز / Turn Toggle Glitch",
+            ar_q: "في الكود الحالي، إذا فاز اللاعب X بحركته، فمن اللاعب المذكور في statusText كصاحب الدور التالي؟",
+            en_q: "In current code, if player X wins on their move, which player does statusText say has the turn?",
+            options: [
+                { ar: "اللاعب X", en: "Player X" },
+                { ar: "اللاعب O", en: "Player O" },
+                { ar: "لا يظهر أي لاعب", en: "No player displayed" },
+                { ar: "تظهر كلمة Winner", en: "Displays 'Winner'" }
+            ],
+            correct: 1,
+            exp_ar: "لأن الكود لا يفحص الفوز داخل start، فإنه يبدل turn إلى 'O' ويطبع أن الدور على 'O' على الرغم من فوز X.",
+            exp_en: "Since start() lacks win detection, it blindly toggles turn and claims it is player O's turn."
+        },
+        {
+            topic: "نوع مصفوفة الأنماط / Array Matrix Composition",
+            ar_q: "كم عنصراً يحتوي كل صف داخلي في مصفوفة أنماط الفوز winPatterns؟",
+            en_q: "How many elements does each inner sub-array in winPatterns hold?",
+            options: [
+                { ar: "3 مؤشرات بالضبط", en: "Exactly 3 index items" },
+                { ar: "9 عناصر مختلفة", en: "9 distinct elements" },
+                { ar: "عنصران اثنان فقط", en: "Only 2 index values" },
+                { ar: "يتغير حسب الفائز", en: "Varies per game winner" }
+            ],
+            correct: 0,
+            exp_ar: "يتطلب الفوز في اللعبة تطابق خط من 3 خلايا، لذلك تحتوي كل مصفوفة فرعية على 3 فهارس بالضبط.",
+            exp_en: "Tic-tac-toe wins require a 3-in-a-row match, so each inner array strictly has 3 indices."
+        },
+        {
+            topic: "إيقاف الاستجابة / Disabled Interaction",
+            ar_q: "إذا كانت قيمة gameOver هي true، ماذا يحدث عند النقر على خلية فارغة؟",
+            en_q: "If gameOver evaluates to true, what happens when clicking an empty cell?",
+            options: [
+                { ar: "تسجل الخلية باسم اللاعب الحالي", en: "The cell fills with the active mark" },
+                { ar: "يتم تجاهل النقرة ولا يُنفذ الكود", en: "The click is ignored with no execution" },
+                { ar: "يتم تفريغ اللوحة وإعادة تشغيلها", en: "The board resets and restarts clean" },
+                { ar: "تطلق الدالة خطأ في المتصفح", en: "The function throws a runtime error" }
+            ],
+            correct: 1,
+            exp_ar: "الشرط gameOver == false سيعيد false، وبالتالي لن يُنفذ جسم الشرط ولن تُسجل الحركة.",
+            exp_en: "The expression gameOver == false fails, immediately bypassing move registration."
+        },
+        {
+            topic: "نطاق المصفوفة / Array Mutability",
+            ar_q: "هل التابع forEach يقوم بتعديل مصفوفة gameBoard الأصلية عند المرور عليها؟",
+            en_q: "Does the forEach method mutate the underlying gameBoard array when iterating?",
+            options: [
+                { ar: "نعم، يحول عناصرها إلى نصوص", en: "Yes, converts items to strings" },
+                { ar: "نعم، يحذف العناصر غير المستخدمة", en: "Yes, strips unused cell entries" },
+                { ar: "لا، هو تابع للمرور والتنفيذ فقط", en: "No, it merely traverses elements" },
+                { ar: "نعم، يفرغ جميع خانات المصفوفة", en: "Yes, empties all array items" }
+            ],
+            correct: 2,
+            exp_ar: "التابع forEach لا يعدل المصفوفة المارة بمفرده، بل ينفذ دالة رد النداء (Callback) على كل عنصر.",
+            exp_en: "forEach merely iterates over elements without mutating the array structure itself."
+        },
+        {
+            topic: "تحديث العناصر / Replacing createBoard",
+            ar_q: "بدلاً من مسح وإعادة رسم 9 خلايا في كل حركة، ما الحل البرمجي الأكثر كفاءة؟",
+            en_q: "Instead of wiping and rebuilding 9 cells per turn, what is the performant approach?",
+            options: [
+                { ar: "تحديث نص الخلية المنقورة وحدها", en: "Updating only the clicked cell's text" },
+                { ar: "حذف ملف JavaScript وإعادة فتحه", en: "Deleting and reloading the script file" },
+                { ar: "إلغاء استخدام خاصية innerHTML", en: "Disabling innerHTML across the engine" },
+                { ar: "إنشاء 81 خلية إضافية بالصفحة", en: "Spawning 81 extra cells in document" }
+            ],
+            correct: 0,
+            exp_ar: "تحديث الخلية المنقورة مباشرة عبر مرجعها وتغيير textContent الخاص بها فقط يجنب المتصفح إعادة بناء شجرة الـ DOM.",
+            exp_en: "Directly updating the target cell's textContent avoids expensive DOM destruction and layout thrashing."
+        },
+        {
+            topic: "نطاق الفهرسة / Index Range",
+            ar_q: "ما هو النطاق العددي لقيم index الممررة لدالة start في اللعبة الحالية؟",
+            en_q: "What is the numeric range of index values passed into start() in this game?",
+            options: [
+                { ar: "من 1 إلى 9", en: "From 1 to 9" },
+                { ar: "من 0 إلى 8", en: "From 0 to 8" },
+                { ar: "من 0 إلى 9", en: "From 0 to 9" },
+                { ar: "من 1 إلى 8", en: "From 1 to 8" }
+            ],
+            correct: 1,
+            exp_ar: "مصفوفة اللعبة تتكون من 9 عناصر، وتبدأ فهرسة المصفوفات في جافاسكريبت من 0 وتنتهي عند 8.",
+            exp_en: "A 9-element array uses zero-based indexing running from 0 through 8."
+        },
+        {
+            topic: "البدء باللاعب / Initial Turn",
+            ar_q: "في الكود المكتوب، من هو اللاعب الذي يبدأ الحركة الأولى دائماً؟",
+            en_q: "In the provided codebase, which player always makes the opening move?",
+            options: [
+                { ar: "اللاعب O دائماً", en: "Player O always" },
+                { ar: "يتم الاختيار عشوائياً", en: "Randomly selected" },
+                { ar: "اللاعب X دائماً", en: "Player X always" },
+                { ar: "كلا اللاعبين معاً", en: "Both players simultaneously" }
+            ],
+            correct: 2,
+            exp_ar: "تمت تهيئة المتغير في قمة الكود بالسطر let turn = 'X'، لذا فإن الحركة الافتتاحية تكون له دائماً.",
+            exp_en: "Because turn is initialized as let turn = 'X', player X invariably executes the opening move."
+        },
+        {
+            topic: "إرجاع الدالة / Function Return Statement",
+            ar_q: "ماذا تعيد الدالة start(index) عند استدعائها في الكود الحالي؟",
+            en_q: "What does the start(index) function return upon invocation in the current code?",
+            options: [
+                { ar: "تعيد القيمة true دائماً", en: "Returns true always" },
+                { ar: "تعيد اسم اللاعب الفائز", en: "Returns winner name" },
+                { ar: "تعيد مصفوفة اللعبة كاملة", en: "Returns full array" },
+                { ar: "تعيد undefined ضمنياً", en: "Implicitly returns undefined" }
+            ],
+            correct: 3,
+            exp_ar: "الدالة start لا تحتوي على عبارة return صريحة، لذا فإنها تعيد تلقائياً القيمة undefined.",
+            exp_en: "start() does not contain a return statement, so it implicitly evaluates to undefined."
+        },
+        {
+            topic: "معامل الربط المنطقي / Logical AND Operator",
+            ar_q: "في الشرط: A && B && C، متى يتحقق الشرط بالكامل ويعيد true؟",
+            en_q: "In the expression A && B && C, when does the entire condition evaluate to true?",
+            options: [
+                { ar: "عندما تكون جميع الأطراف الثلاثة صائبة", en: "When all three operands are true" },
+                { ar: "إذا كان طرف واحد فقط صائباً", en: "If only one single operand is true" },
+                { ar: "إذا كان الطرف الأول خاطئاً", en: "If the first operand is false" },
+                { ar: "عندما تكون الأطراف الثلاثة فارغة", en: "When all three operands are empty" }
+            ],
+            correct: 0,
+            exp_ar: "معامل العطف المنطقي && يتطلب أن تكون جميع التعبيرات التابعة له صائبة (true) ليعيد true.",
+            exp_en: "The logical AND (&&) operator requires every evaluated condition to be truthy to return true."
+        },
+        {
+            topic: "إسناد المتغيرات النصية / String Primitive",
+            ar_q: "ما نوع البيانات المخزن في المتغير turn؟",
+            en_q: "What primitive data type is stored in the 'turn' variable?",
+            options: [
+                { ar: "نوع رقمي (Number)", en: "Number primitive" },
+                { ar: "نوع نصي (String)", en: "String primitive" },
+                { ar: "نوع منطقي (Boolean)", en: "Boolean primitive" },
+                { ar: "نوع كائن (Object)", en: "Object reference" }
+            ],
+            correct: 1,
+            exp_ar: "المتغير turn يحمل نصوصاً نصية مفردة ('X' أو 'O')، وهي تتبع نوع البيانات النصي String.",
+            exp_en: "The turn variable holds character symbols ('X' or 'O'), which are primitive strings."
+        },
+        {
+            topic: "هيكل البيانات العام / State Representation",
+            ar_q: "ما هو أفضل وصف لدور مصفوفة gameBoard في الكود؟",
+            en_q: "What is the most accurate description of gameBoard's role in the architecture?",
+            options: [
+                { ar: "تمثيل حالة بيانات اللعبة (State Model)", en: "State model representing game data" },
+                { ar: "معالج أحداث المتصفح المباشرة", en: "Direct browser event dispatcher" },
+                { ar: "أداة لتنسيق وتوزيع الألوان", en: "Visual color layout formatter" },
+                { ar: "قاعدة بيانات سحابية خارجية", en: "External remote database system" }
+            ],
+            correct: 0,
+            exp_ar: "تمثل مصفوفة gameBoard 'نموذج الحالة' (State Model) المستقل للعبة، والتي تُبنى على أساسها الواجهة.",
+            exp_en: "gameBoard acts as the underlying state model of the application from which UI reflects."
+        }
+    ];
+
+    let userAnswers = new Array(questions.length).fill(null);
+    let currentIdx = 0;
+    let score = 0;
+
+    function loadScores() {
+        const storedHigh = localStorage.getItem('tictactoe_quiz_highscore');
+        const high = storedHigh ? parseInt(storedHigh) : 0;
+        document.getElementById('highScore').innerText = high;
+
+        const storedFirst = localStorage.getItem('tictactoe_quiz_first_score');
+        document.getElementById('firstScore').innerText = (storedFirst !== null) ? storedFirst : "--";
+    }
+
+    function saveScores(finalScore) {
+        let isFirstTime = false;
+        if (localStorage.getItem('tictactoe_quiz_first_score') === null) {
+            localStorage.setItem('tictactoe_quiz_first_score', finalScore);
+            document.getElementById('firstScore').innerText = finalScore;
+            isFirstTime = true;
+        }
+
+        const currentHigh = parseInt(localStorage.getItem('tictactoe_quiz_highscore') || '0');
+        let isNewHigh = false;
+        if (finalScore > currentHigh) {
+            localStorage.setItem('tictactoe_quiz_highscore', finalScore);
+            document.getElementById('highScore').innerText = finalScore;
+            isNewHigh = true;
+        }
+        return { isFirstTime, isNewHigh };
+    }
+
+    function calculateScore() {
+        let s = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null && userAnswers[i] === questions[i].correct) {
+                s++;
+            }
+        }
+        score = s;
+        document.getElementById('score').innerText = score;
+        return score;
+    }
+
+    function displayQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('qCurrent').innerText = currentIdx + 1;
+        document.getElementById('topicBadge').innerText = q.topic;
+        document.getElementById('questionTextAr').innerText = (currentIdx + 1) + ". " + q.ar_q;
+        document.getElementById('questionTextEn').innerText = "Q" + (currentIdx + 1) + ": " + q.en_q;
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        const pct = (answeredCount / questions.length) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+
+        const container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+
+        const expBox = document.getElementById('explanationText');
+        const statusIndicator = document.getElementById('qStatusIndicator');
+        const prevAns = userAnswers[currentIdx];
+
+        if (prevAns === null) {
+            statusIndicator.innerText = "لم يُجب بعد / Not answered";
+            statusIndicator.style.color = "var(--text-muted)";
+            expBox.style.display = 'none';
+        } else {
+            statusIndicator.innerText = prevAns === q.correct ? "✅ إجابة صحيحة مسجلة" : "❌ إجابة خاطئة مسجلة";
+            statusIndicator.style.color = prevAns === q.correct ? "var(--success)" : "var(--danger)";
+            showExplanation(prevAns === q.correct, prevAns);
+        }
+
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerHTML = `
+                <div class="opt-ar">${['أ', 'ب', 'ج', 'د'][idx]}) ${opt.ar}</div>
+                <div class="opt-en">${['A', 'B', 'C', 'D'][idx]}) ${opt.en}</div>
+            `;
+
+            if (prevAns !== null) {
+                btn.disabled = true;
+                if (idx === q.correct) {
+                    btn.classList.add('correct');
+                } else if (idx === prevAns) {
+                    btn.classList.add('wrong');
+                }
+            } else {
+                btn.onclick = () => selectAnswer(idx);
+            }
+            container.appendChild(btn);
+        });
+
+        document.getElementById('prevBtn').disabled = (currentIdx === 0);
+        document.getElementById('nextBtn').innerText = (currentIdx === questions.length - 1) ? "إنهاء الاختبار / Finish 🏁" : "التالي / Next ⬅️";
+    }
+
+    function selectAnswer(chosenIdx) {
+        if (userAnswers[currentIdx] !== null) return;
+
+        userAnswers[currentIdx] = chosenIdx;
+        calculateScore();
+
+        const q = questions[currentIdx];
+        const isCorrect = (chosenIdx === q.correct);
+
+        const buttons = document.querySelectorAll('.opt-btn');
+        buttons.forEach(b => b.disabled = true);
+
+        if (isCorrect) {
+            buttons[chosenIdx].classList.add('correct');
+        } else {
+            buttons[chosenIdx].classList.add('wrong');
+            buttons[q.correct].classList.add('correct');
+        }
+
+        showExplanation(isCorrect, chosenIdx);
+
+        const statusIndicator = document.getElementById('qStatusIndicator');
+        statusIndicator.innerText = isCorrect ? "✅ إجابة صحيحة مسجلة" : "❌ إجابة خاطئة مسجلة";
+        statusIndicator.style.color = isCorrect ? "var(--success)" : "var(--danger)";
+
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        document.getElementById('progressBar').style.width = ((answeredCount / questions.length) * 100) + '%';
+    }
+
+    function showExplanation(isCorrect, chosenIdx) {
+        const q = questions[currentIdx];
+        const expBox = document.getElementById('explanationText');
+
+        if (isCorrect) {
+            expBox.innerHTML = `
+                <b>✅ إجابة صحيحة / Correct!</b><br>
+                <div>${q.exp_ar}</div>
+                <div class="exp-en">${q.exp_en}</div>
+            `;
+            expBox.style.borderRightColor = 'var(--success)';
+        } else {
+            expBox.innerHTML = `
+                <b>❌ إجابة غير دقيقة / Incorrect!</b><br>
+                <div>الإجابة الصحيحة هي: <b>${q.options[q.correct].ar}</b></div>
+                <div class="exp-en">Correct answer: <b>${q.options[q.correct].en}</b></div>
+                <div style="margin-top: 6px;">${q.exp_ar}</div>
+                <div class="exp-en">${q.exp_en}</div>
+            `;
+            expBox.style.borderRightColor = 'var(--danger)';
+        }
+        expBox.style.display = 'block';
+    }
+
+    function nextQuestion() {
+        if (currentIdx < questions.length - 1) {
+            currentIdx++;
+            displayQuestion();
+        } else {
+            showFinalResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            displayQuestion();
+        }
+    }
+
+    function openIndexModal() {
+        buildIndexGrid();
+        document.getElementById('indexModal').style.display = 'flex';
+    }
+
+    function closeIndexModal() {
+        document.getElementById('indexModal').style.display = 'none';
+    }
+
+    function closeIndexModalOnOutside(e) {
+        if (e.target.id === 'indexModal') closeIndexModal();
+    }
+
+    function buildIndexGrid() {
+        const grid = document.getElementById('gridIndexContainer');
+        grid.innerHTML = '';
+
+        for (let i = 0; i < questions.length; i++) {
+            const pill = document.createElement('div');
+            pill.className = 'index-pill';
+            pill.innerText = (i + 1);
+
+            if (i === currentIdx) pill.classList.add('active');
+
+            if (userAnswers[i] !== null) {
+                if (userAnswers[i] === questions[i].correct) {
+                    pill.classList.add('solved-correct');
+                } else {
+                    pill.classList.add('solved-wrong');
+                }
+            }
+
+            pill.onclick = () => {
+                currentIdx = i;
+                displayQuestion();
+                closeIndexModal();
+            };
+            grid.appendChild(pill);
+        }
+    }
+
+    function showFinalResults() {
+        document.getElementById('quizCard').style.display = 'none';
+        document.getElementById('progressBar').style.width = '100%';
+
+        const resultsCard = document.getElementById('resultsCard');
+        resultsCard.style.display = 'block';
+
+        calculateScore();
+        document.getElementById('finalScore').innerText = score;
+        const res = saveScores(score);
+
+        const notice = document.getElementById('highScoreNotice');
+        const storedFirst = localStorage.getItem('tictactoe_quiz_first_score');
+        const storedHigh = localStorage.getItem('tictactoe_quiz_highscore');
+
+        let textDetails = `🎯 أول محاولة مسجلة: ${storedFirst} من 50<br>`;
+        if (res.isNewHigh && score > 0) {
+            textDetails += `🏆 رقم قياسي جديد حققته الآن: ${score} من 50!`;
+        } else {
+            textDetails += `🏆 أعلى نتيجة مسجلة على هذا الجهاز: ${storedHigh} من 50`;
+        }
+        notice.innerHTML = textDetails;
+
+        if (score >= 45) {
+            document.getElementById('resultMsg').innerText = "ممتاز ومحترف! إتقان تام لمنطق اللعبة والـ DOM 🌟";
+        } else if (score >= 35) {
+            document.getElementById('resultMsg').innerText = "جيد جداً! استيعاب قوي لأغلب آليات ومصفوفات اللعبة 👏";
+        } else {
+            document.getElementById('resultMsg').innerText = "يُنصح بمراجعة منطق المصفوفات وإعادة المحاولة 💡";
+        }
+    }
+
+    function restartQuiz() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentIdx = 0;
+        score = 0;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('resultsCard').style.display = 'none';
+        document.getElementById('quizCard').style.display = 'block';
+        displayQuestion();
+    }
+
+    window.onload = function() {
+        loadScores();
+        displayQuestion();
+    };
+</script>
+</body>
+</html>
